@@ -12,7 +12,12 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
 export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(todoId: string, dto: CreateCommentDto, userId: string, organizationId: string) {
+  async create(
+    todoId: string,
+    dto: CreateCommentDto,
+    userId: string,
+    organizationId: string,
+  ) {
     // Verify todo exists and belongs to the user's org
     const todo = await this.prisma.todo.findFirst({
       where: { id: todoId, organizationId },
@@ -34,7 +39,11 @@ export class CommentsService {
     });
   }
 
-  async findAll(todoId: string, organizationId: string, query: PaginationQueryDto) {
+  async findAll(
+    todoId: string,
+    organizationId: string,
+    query: PaginationQueryDto,
+  ) {
     // Verify todo exists and belongs to the user's org
     const todo = await this.prisma.todo.findFirst({
       where: { id: todoId, organizationId },

@@ -37,11 +37,11 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, 12);
 
     // Create org slug from user name
-    const slug = registerDto.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-      + '-org';
+    const slug =
+      registerDto.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') + '-org';
 
     const user = await this.prisma.user.create({
       data: {
@@ -66,7 +66,12 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role, user.organizationId);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.organizationId,
+    );
     await this.storeRefreshToken(user.id, tokens.refreshToken);
 
     this.logger.log(`User registered: ${user.email}`);
@@ -101,18 +106,27 @@ export class AuthService {
       throw new UnauthorizedException('Account is deactivated');
     }
 
-    const passwordValid = await bcrypt.compare(loginDto.password, user.password);
+    const passwordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
 
     if (!passwordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role, user.organizationId);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.organizationId,
+    );
     await this.storeRefreshToken(user.id, tokens.refreshToken);
 
     this.logger.log(`User logged in: ${user.email}`);
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user;
+    void password;
 
     return {
       user: userWithoutPassword,
@@ -139,7 +153,13 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, role: true, isActive: true, organizationId: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        organizationId: true,
+      },
     });
 
     if (!user || !user.isActive) {
@@ -150,7 +170,12 @@ export class AuthService {
     await this.prisma.refreshToken.delete({ where: { id: storedToken.id } });
 
     // Generate new token pair
-    const tokens = await this.generateTokens(user.id, user.email, user.role, user.organizationId);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.organizationId,
+    );
     await this.storeRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
@@ -187,7 +212,10 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const passwordValid = await bcrypt.compare(dto.currentPassword, user.password);
+    const passwordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.password,
+    );
 
     if (!passwordValid) {
       throw new UnauthorizedException('Current password is incorrect');
@@ -247,13 +275,14 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m') as any,
+        expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') ?? '15m',
       }),
       this.jwtService.signAsync(
         { sub: userId, email },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d') as any,
+          expiresIn:
+            this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '7d',
         },
       ),
     ]);
@@ -263,7 +292,10 @@ export class AuthService {
 
   private async storeRefreshToken(userId: string, refreshToken: string) {
     const tokenHash = this.hashToken(refreshToken);
-    const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d');
+    const expiresIn = this.configService.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+      '7d',
+    );
     const expiresMs = this.parseDuration(expiresIn);
 
     await this.prisma.refreshToken.create({
@@ -287,11 +319,16 @@ export class AuthService {
     const unit = match[2];
 
     switch (unit) {
-      case 's': return value * 1000;
-      case 'm': return value * 60 * 1000;
-      case 'h': return value * 60 * 60 * 1000;
-      case 'd': return value * 24 * 60 * 60 * 1000;
-      default: return 7 * 24 * 60 * 60 * 1000;
+      case 's':
+        return value * 1000;
+      case 'm':
+        return value * 60 * 1000;
+      case 'h':
+        return value * 60 * 60 * 1000;
+      case 'd':
+        return value * 24 * 60 * 60 * 1000;
+      default:
+        return 7 * 24 * 60 * 60 * 1000;
     }
   }
 }

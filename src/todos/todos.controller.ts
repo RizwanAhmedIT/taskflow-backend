@@ -18,7 +18,7 @@ import { BulkStatusDto } from './dto/bulk-status.dto.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Todos')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
@@ -34,7 +34,9 @@ export class TodosController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all todos with filtering, sorting, and pagination' })
+  @ApiOperation({
+    summary: 'List all todos with filtering, sorting, and pagination',
+  })
   findAll(
     @CurrentUser('organizationId') organizationId: string,
     @Query() query: TodoFilterDto,

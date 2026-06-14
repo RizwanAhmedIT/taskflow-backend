@@ -23,7 +23,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     switch (exception.code) {
       case 'P2002': {
         status = HttpStatus.CONFLICT;
-        const fields = (exception.meta?.target as string[])?.join(', ') || 'field';
+        const fields =
+          (exception.meta?.target as string[])?.join(', ') || 'field';
         message = `A record with this ${fields} already exists`;
         break;
       }
@@ -39,7 +40,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       }
       case 'P2014': {
         status = HttpStatus.BAD_REQUEST;
-        message = 'The change you are trying to make would violate a required relation';
+        message =
+          'The change you are trying to make would violate a required relation';
         break;
       }
       default: {
@@ -49,9 +51,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       }
     }
 
-    this.logger.error(
-      `Prisma Error ${exception.code}: ${exception.message}`,
-    );
+    this.logger.error(`Prisma Error ${exception.code}: ${exception.message}`);
 
     response.status(status).json({
       success: false,

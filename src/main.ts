@@ -41,10 +41,7 @@ async function bootstrap() {
   );
 
   // ── Global Filters ────────────────────────────────────────────────────
-  app.useGlobalFilters(
-    new HttpExceptionFilter(),
-    new PrismaExceptionFilter(),
-  );
+  app.useGlobalFilters(new HttpExceptionFilter(), new PrismaExceptionFilter());
 
   // ── Global Interceptors ───────────────────────────────────────────────
   app.useGlobalInterceptors(
@@ -57,9 +54,9 @@ async function bootstrap() {
     .setTitle('Todo Management Platform API')
     .setDescription(
       'Enterprise-grade API for managing todos, projects, tags, and organizations.\n\n' +
-      '## Authentication\n' +
-      'Use the `/auth/register` or `/auth/login` endpoints to get an access token.\n' +
-      'Then click the **Authorize** button and enter: `Bearer <your_access_token>`',
+        '## Authentication\n' +
+        'Use the `/auth/register` or `/auth/login` endpoints to get an access token.\n' +
+        'Then click the **Authorize** button and enter: `Bearer <your_access_token>`',
     )
     .setVersion('1.0.0')
     .addBearerAuth(

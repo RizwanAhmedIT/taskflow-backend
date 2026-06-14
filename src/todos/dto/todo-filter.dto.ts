@@ -1,4 +1,10 @@
-import { IsOptional, IsEnum, IsUUID, IsDateString, IsString } from 'class-validator';
+import {
+  IsOptional,
+  IsEnum,
+  IsUUID,
+  IsDateString,
+  IsString,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { TodoStatus, TodoPriority } from '@prisma/client';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto.js';
@@ -39,7 +45,10 @@ export class TodoFilterDto extends PaginationQueryDto {
   @IsDateString()
   dueAfter?: string;
 
-  @ApiPropertyOptional({ description: 'Include soft-deleted todos', default: false })
+  @ApiPropertyOptional({
+    description: 'Include soft-deleted todos',
+    default: false,
+  })
   @IsOptional()
   includeDeleted?: boolean;
 }

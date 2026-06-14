@@ -14,7 +14,7 @@ import { UpdateTagDto } from './dto/update-tag.dto.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Tags')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller('tags')
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}

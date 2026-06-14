@@ -35,7 +35,9 @@ export class CreateTodoDto {
   @IsDateString()
   dueDate?: string;
 
-  @ApiPropertyOptional({ description: 'UUID of the user to assign this todo to' })
+  @ApiPropertyOptional({
+    description: 'UUID of the user to assign this todo to',
+  })
   @IsOptional()
   @IsUUID()
   assigneeId?: string;
@@ -45,7 +47,10 @@ export class CreateTodoDto {
   @IsUUID()
   projectId?: string;
 
-  @ApiPropertyOptional({ description: 'Array of tag IDs to attach', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Array of tag IDs to attach',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })

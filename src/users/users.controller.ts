@@ -18,7 +18,7 @@ import { RolesGuard } from '../common/guards/roles.guard.js';
 import { UserRole } from '@prisma/client';
 
 @ApiTags('Users')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -40,17 +40,14 @@ export class UsersController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update your own profile' })
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-  ) {
+  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
 
   @Patch(':id/role')
   @UseGuards(RolesGuard)
   @Roles(UserRole.OWNER, UserRole.ADMIN)
-  @ApiOperation({ summary: 'Update a user\'s role (Admin/Owner only)' })
+  @ApiOperation({ summary: "Update a user's role (Admin/Owner only)" })
   updateRole(
     @Param('id') targetUserId: string,
     @Body() dto: UpdateRoleDto,

@@ -8,7 +8,10 @@ export class BulkStatusDto {
   @IsUUID('4', { each: true })
   todoIds: string[];
 
-  @ApiProperty({ enum: TodoStatus, description: 'Target status for all selected todos' })
+  @ApiProperty({
+    enum: TodoStatus,
+    description: 'Target status for all selected todos',
+  })
   @IsNotEmpty()
   @IsEnum(TodoStatus)
   status: TodoStatus;

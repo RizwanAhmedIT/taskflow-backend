@@ -16,7 +16,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Comments')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller()
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
@@ -54,10 +54,7 @@ export class CommentsController {
 
   @Delete('comments/:id')
   @ApiOperation({ summary: 'Delete your own comment' })
-  remove(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.commentsService.remove(id, userId);
   }
 }

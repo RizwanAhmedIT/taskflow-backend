@@ -117,11 +117,15 @@ export class UsersService {
     }
 
     if (targetUser.organizationId !== requestingUser.organizationId) {
-      throw new ForbiddenException('Cannot modify users outside your organization');
+      throw new ForbiddenException(
+        'Cannot modify users outside your organization',
+      );
     }
 
     if (targetUser.role === 'OWNER' && requestingUser.role !== 'OWNER') {
-      throw new ForbiddenException('Only the owner can change another owner\'s role');
+      throw new ForbiddenException(
+        "Only the owner can change another owner's role",
+      );
     }
 
     if (targetUserId === requestingUser.id) {
