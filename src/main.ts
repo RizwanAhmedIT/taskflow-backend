@@ -68,6 +68,7 @@ async function bootstrap() {
       },
       'default',
     )
+    .addSecurityRequirements('default')
     .addTag('Authentication', 'User registration, login, token management')
     .addTag('Users', 'User profile and role management')
     .addTag('Organizations', 'Multi-tenant organization management')
