@@ -18,7 +18,11 @@ async function bootstrap() {
   });
 
   // ── Security ──────────────────────────────────────────────────────────
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
   app.enableCors({
     origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -41,10 +45,7 @@ async function bootstrap() {
   );
 
   // ── Global Filters ────────────────────────────────────────────────────
-  app.useGlobalFilters(
-    new HttpExceptionFilter(),
-    new PrismaExceptionFilter(),
-  );
+  app.useGlobalFilters(new HttpExceptionFilter(), new PrismaExceptionFilter());
 
   // ── Global Interceptors ───────────────────────────────────────────────
   app.useGlobalInterceptors(
@@ -57,9 +58,9 @@ async function bootstrap() {
     .setTitle('Todo Management Platform API')
     .setDescription(
       'Enterprise-grade API for managing todos, projects, tags, and organizations.\n\n' +
-      '## Authentication\n' +
-      'Use the `/auth/register` or `/auth/login` endpoints to get an access token.\n' +
-      'Then click the **Authorize** button and enter: `Bearer <your_access_token>`',
+        '## Authentication\n' +
+        'Use the `/auth/register` or `/auth/login` endpoints to get an access token.\n' +
+        'Then click the **Authorize** button and enter: `Bearer <your_access_token>`',
     )
     .setVersion('1.0.0')
     .addBearerAuth(
@@ -71,6 +72,7 @@ async function bootstrap() {
       },
       'default',
     )
+    .addSecurityRequirements('default')
     .addTag('Authentication', 'User registration, login, token management')
     .addTag('Users', 'User profile and role management')
     .addTag('Organizations', 'Multi-tenant organization management')

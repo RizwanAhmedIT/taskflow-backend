@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateOrganizationDto {
@@ -8,7 +14,10 @@ export class CreateOrganizationDto {
   @MaxLength(100)
   name: string;
 
-  @ApiProperty({ example: 'acme-corp', description: 'URL-friendly slug (lowercase, hyphens only)' })
+  @ApiProperty({
+    example: 'acme-corp',
+    description: 'URL-friendly slug (lowercase, hyphens only)',
+  })
   @IsNotEmpty()
   @IsString()
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {

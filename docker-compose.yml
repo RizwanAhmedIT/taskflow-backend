@@ -5,18 +5,21 @@ services:
     container_name: todo-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: todo_db
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-todo_db}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles:
+      - local
+      - production
 
   # ── Redis (Rate Limiting & Caching) ──────────────────────────────────────
   redis:
@@ -28,10 +31,13 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles:
+      - local
+      - production
 
   # ── pgAdmin (Database Management UI) ────────────────────────────────────
   pgadmin:
@@ -39,33 +45,50 @@ services:
     container_name: todo-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
       - "5050:80"
     depends_on:
       postgres:
         condition: service_healthy
+    profiles:
+      - local
+      - production
 
-  # ── NestJS Application ──────────────────────────────────────────────────
-  app:
+  # ── LOCAL App (Builds from source code) ─────────────────────────────────
+  app-local:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: todo-app
+    container_name: todo-app-local
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/todo_db?schema=public
-      JWT_SECRET: ${JWT_SECRET:-super-secret-key-change-me}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-super-secret-refresh-key-change-me}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
-      PORT: 3000
-      NODE_ENV: production
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-todo_db}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - local
+
+  # ── PRODUCTION App (Uses Docker Hub Image) ──────────────────────────────
+  app-prod:
+    image: rizwanahmed135/backend-taskflow:latest
+    container_name: todo-app-prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-todo_db}?schema=public
     depends_on:
       postgres:
         condition: service_healthy

@@ -132,9 +132,7 @@ export class ProjectsService {
       total,
       byStatus,
       completionRate:
-        total > 0
-          ? Math.round(((byStatus['DONE'] || 0) / total) * 100)
-          : 0,
+        total > 0 ? Math.round(((byStatus['DONE'] || 0) / total) * 100) : 0,
     };
   }
 }

@@ -12,9 +12,10 @@ import { OrganizationsService } from './organizations.service.js';
 import { CreateOrganizationDto } from './dto/create-organization.dto.js';
 import { UpdateOrganizationDto } from './dto/update-organization.dto.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Public } from '../common/decorators/public.decorator.js';
 
 @ApiTags('Organizations')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller('organizations')
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
@@ -23,7 +24,7 @@ export class OrganizationsController {
   @ApiOperation({ summary: 'Create a new organization' })
   create(
     @Body() dto: CreateOrganizationDto,
-    @CurrentUser('id') userId: string,
+    @CurrentUser('id') userId?: string,
   ) {
     return this.organizationsService.create(dto, userId);
   }
@@ -67,6 +68,10 @@ export class OrganizationsController {
     @Param('userId') targetUserId: string,
     @CurrentUser('id') requestingUserId: string,
   ) {
-    return this.organizationsService.removeMember(orgId, targetUserId, requestingUserId);
+    return this.organizationsService.removeMember(
+      orgId,
+      targetUserId,
+      requestingUserId,
+    );
   }
 }

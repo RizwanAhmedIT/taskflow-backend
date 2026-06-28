@@ -20,11 +20,7 @@ export class TodosService {
 
   // ── Create ──────────────────────────────────────────────────────────────
 
-  async create(
-    dto: CreateTodoDto,
-    userId: string,
-    organizationId: string,
-  ) {
+  async create(dto: CreateTodoDto, userId: string, organizationId: string) {
     const { tagIds, ...todoData } = dto;
 
     const todo = await this.prisma.todo.create({
@@ -121,7 +117,9 @@ export class TodosService {
       where: { id, organizationId },
       include: {
         tags: { include: { tag: true } },
-        assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        assignee: {
+          select: { id: true, name: true, email: true, avatarUrl: true },
+        },
         creator: { select: { id: true, name: true, email: true } },
         project: { select: { id: true, name: true, color: true } },
         comments: {
@@ -172,7 +170,11 @@ export class TodosService {
       where: { id },
       data: {
         ...updateData,
-        dueDate: dto.dueDate ? new Date(dto.dueDate) : updateData.dueDate === null ? null : undefined,
+        dueDate: dto.dueDate
+          ? new Date(dto.dueDate)
+          : updateData.dueDate === null
+            ? null
+            : undefined,
         completedAt,
         tags: tagIds
           ? {
@@ -193,7 +195,10 @@ export class TodosService {
     const changes: Record<string, { from: any; to: any }> = {};
     for (const key of Object.keys(updateData)) {
       if ((existing as any)[key] !== (updateData as any)[key]) {
-        changes[key] = { from: (existing as any)[key], to: (updateData as any)[key] };
+        changes[key] = {
+          from: (existing as any)[key],
+          to: (updateData as any)[key],
+        };
       }
     }
 
@@ -311,10 +316,16 @@ export class TodosService {
       },
     });
 
-    await this.logActivity(userId, 'BULK_STATUS', 'Todo', dto.todoIds.join(','), {
-      status: dto.status,
-      count: result.count,
-    });
+    await this.logActivity(
+      userId,
+      'BULK_STATUS',
+      'Todo',
+      dto.todoIds.join(','),
+      {
+        status: dto.status,
+        count: result.count,
+      },
+    );
 
     return {
       message: `Updated ${result.count} todos to ${dto.status}`,

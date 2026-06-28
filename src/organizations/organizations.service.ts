@@ -11,7 +11,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto.js';
 export class OrganizationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateOrganizationDto, userId: string) {
+  async create(dto: CreateOrganizationDto, userId?: string) {
     const org = await this.prisma.organization.create({
       data: {
         name: dto.name,
@@ -20,11 +20,13 @@ export class OrganizationsService {
       },
     });
 
-    // Assign creator as OWNER of new org
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { organizationId: org.id, role: 'OWNER' },
-    });
+    if (userId) {
+      // Assign creator as OWNER of new org when the request is authenticated
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { organizationId: org.id, role: 'OWNER' },
+      });
+    }
 
     return org;
   }
@@ -83,7 +85,9 @@ export class OrganizationsService {
     }
 
     if (user.organizationId === orgId) {
-      throw new ForbiddenException('User is already a member of this organization');
+      throw new ForbiddenException(
+        'User is already a member of this organization',
+      );
     }
 
     return this.prisma.user.update({
@@ -127,7 +131,9 @@ export class OrganizationsService {
     }
 
     if (!['OWNER', 'ADMIN'].includes(user.role)) {
-      throw new ForbiddenException('Only owners and admins can perform this action');
+      throw new ForbiddenException(
+        'Only owners and admins can perform this action',
+      );
     }
   }
 }

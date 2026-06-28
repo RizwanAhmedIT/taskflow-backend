@@ -16,7 +16,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('Projects')
-@ApiBearerAuth()
+@ApiBearerAuth('default')
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}

@@ -24,7 +24,9 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user and create default organization' })
+  @ApiOperation({
+    summary: 'Register a new user and create default organization',
+  })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
@@ -43,13 +45,15 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt-refresh'))
   @ApiOperation({ summary: 'Refresh access token using a valid refresh token' })
   @ApiBody({ type: RefreshTokenDto })
-  async refreshTokens(@CurrentUser() user: { id: string; refreshToken: string }) {
+  async refreshTokens(
+    @CurrentUser() user: { id: string; refreshToken: string },
+  ) {
     return this.authService.refreshTokens(user.id, user.refreshToken);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
+  @ApiBearerAuth('default')
   @ApiOperation({ summary: 'Logout and invalidate refresh tokens' })
   async logout(
     @CurrentUser('id') userId: string,
@@ -60,7 +64,7 @@ export class AuthController {
 
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
+  @ApiBearerAuth('default')
   @ApiOperation({ summary: 'Change password for the authenticated user' })
   async changePassword(
     @CurrentUser('id') userId: string,
@@ -70,7 +74,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @ApiBearerAuth()
+  @ApiBearerAuth('default')
   @ApiOperation({ summary: 'Get the current authenticated user profile' })
   async getProfile(@CurrentUser('id') userId: string) {
     return this.authService.getProfile(userId);
