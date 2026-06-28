@@ -20,7 +20,6 @@ import { Public } from '../common/decorators/public.decorator.js';
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
-  @Public()
   @Post()
   @ApiOperation({ summary: 'Create a new organization' })
   create(
